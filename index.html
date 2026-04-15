@@ -21,6 +21,13 @@
   header { text-align: center; margin-bottom: 32px; }
   header h1 { font-size: 13px; font-weight: 600; color: #666; letter-spacing: 0.14em; text-transform: uppercase; }
   header p { font-size: 12px; color: #333; margin-top: 6px; }
+  .section-label {
+    width: 100%; max-width: 500px;
+    font-size: 11px; font-weight: 600;
+    color: #444; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
   .list { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
   .item {
     background: #1a1a1a;
@@ -62,7 +69,13 @@
   <h1>Caption Copier</h1>
   <p>Tap any caption to copy it</p>
 </header>
-<div class="list" id="list"></div>
+
+<div class="section-label">📝 Captions</div>
+<div class="list" id="captions"></div>
+
+<div class="section-label">🔗 Links</div>
+<div class="list" id="links"></div>
+
 <div class="toast" id="toast">✅ Copied to clipboard!</div>
 <script>
   const captions = [
@@ -72,13 +85,18 @@
     "🧼 Satisfying Mirror Cleaning ✨",
     "📲 Send us a DM or click the link in our bio for a free Janitorial & Window Cleaning quote! ✨"
   ];
-  const list = document.getElementById('list');
+
+  const links = [
+    "https://bit.ly/window-cleaning-guide"
+  ];
+
   const toast = document.getElementById('toast');
   let timer;
-  captions.forEach((text, i) => {
+
+  function makeItem(text, i, numbered) {
     const item = document.createElement('div');
     item.className = 'item';
-    item.innerHTML = `<span class="num">${i+1}</span><span class="text">${text}</span><span class="badge">Copy</span>`;
+    item.innerHTML = `${numbered ? `<span class="num">${i+1}</span>` : '<span class="num">🔗</span>'}<span class="text">${text}</span><span class="badge">Copy</span>`;
     item.addEventListener('click', () => {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => confirm(item));
@@ -91,8 +109,9 @@
         confirm(item);
       }
     });
-    list.appendChild(item);
-  });
+    return item;
+  }
+
   function confirm(el) {
     el.classList.add('copied');
     el.querySelector('.badge').textContent = '✓ Copied';
@@ -101,6 +120,9 @@
     toast.classList.add('show');
     timer = setTimeout(() => toast.classList.remove('show'), 2000);
   }
+
+  captions.forEach((t, i) => document.getElementById('captions').appendChild(makeItem(t, i, true)));
+  links.forEach((t, i) => document.getElementById('links').appendChild(makeItem(t, i, false)));
 </script>
 </body>
 </html>
