@@ -1,1 +1,106 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Captions">
+<title>Caption Copier</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh;
+    background: #0f0f0f;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    padding: 50px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header { text-align: center; margin-bottom: 32px; }
+  header h1 { font-size: 13px; font-weight: 600; color: #666; letter-spacing: 0.14em; text-transform: uppercase; }
+  header p { font-size: 12px; color: #333; margin-top: 6px; }
+  .list { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
+  .item {
+    background: #1a1a1a;
+    border: 1px solid #272727;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .item.copied { background: #0d1f0e; border-color: #2e7d32; }
+  .num { font-size: 11px; color: #3a3a3a; min-width: 16px; }
+  .text { flex: 1; font-size: 15px; color: #ccc; line-height: 1.5; transition: color 0.2s; }
+  .item.copied .text { color: #81c784; }
+  .badge {
+    font-size: 11px; font-weight: 600;
+    background: #222; color: #555;
+    border-radius: 6px; padding: 4px 9px;
+    white-space: nowrap; transition: all 0.2s;
+  }
+  .item.copied .badge { background: #1b5e20; color: #c8e6c9; }
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1b5e20; color: #e8f5e9;
+    font-size: 13px; font-weight: 600;
+    padding: 11px 22px; border-radius: 30px;
+    opacity: 0; transition: all 0.3s ease;
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <div style="font-size:32px;margin-bottom:8px">🧼</div>
+  <h1>Caption Copier</h1>
+  <p>Tap any caption to copy it</p>
+</header>
+<div class="list" id="list"></div>
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+<script>
+  const captions = [
+    "🧼 Commercial Window Cleaning! Enjoy! ✨",
+    "🧼 Commercial Mirror Cleaning! Enjoy! ✨",
+    "🧼 Satisfying Window Cleaning ✨",
+    "🧼 Satisfying Mirror Cleaning ✨",
+    "📲 Send us a DM or click the link in our bio for a free Janitorial & Window Cleaning quote! ✨"
+  ];
+  const list = document.getElementById('list');
+  const toast = document.getElementById('toast');
+  let timer;
+  captions.forEach((text, i) => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML = `<span class="num">${i+1}</span><span class="text">${text}</span><span class="badge">Copy</span>`;
+    item.addEventListener('click', () => {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => confirm(item));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+        confirm(item);
+      }
+    });
+    list.appendChild(item);
+  });
+  function confirm(el) {
+    el.classList.add('copied');
+    el.querySelector('.badge').textContent = '✓ Copied';
+    setTimeout(() => { el.classList.remove('copied'); el.querySelector('.badge').textContent = 'Copy'; }, 2000);
+    clearTimeout(timer);
+    toast.classList.add('show');
+    timer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>
